@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: zachet
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/zachet}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:P@ssw0rd}
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml

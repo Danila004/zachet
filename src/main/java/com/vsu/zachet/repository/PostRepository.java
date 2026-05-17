@@ -1,0 +1,73 @@
+package com.vsu.zachet.repository;
+
+import com.vsu.zachet.repository.mapper.PostRowMapper;
+import com.vsu.zachet.repository.mapper.PostRowMapper;
+import com.vsu.zachet.request.AddPostRequest;
+import com.vsu.zachet.request.EditPostRequest;
+import com.vsu.zachet.response.PostResponse;
+import com.vsu.zachet.response.UserResponse;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class PostRepository {
+    private final JdbcTemplate jdbcTemplate;
+    private final PostRowMapper postRowMapper;
+
+    public PostRepository(JdbcTemplate jdbcTemplate, PostRowMapper postRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.postRowMapper = postRowMapper;
+    }
+    
+    public PostResponse addPost(AddPostRequest request) {
+        return jdbcTemplate.queryForObject("""
+                INSERT INTO posts (user_id, title, content)
+                VALUES(?,?,?)
+                RETURNING id, title, content, user_id
+                """,
+                new Object[] {request.user_id(), request.title(), request.content()},
+                postRowMapper);
+    }
+
+    public void deletePost(Long id) {
+        jdbcTemplate.update("""
+            DELETE FROM posts
+            WHERE id = ?
+            """, id);
+    }
+
+    public void editPost(Long id, EditPostRequest request) {
+        jdbcTemplate.update("""
+            UPDATE posts
+            SET title = ?, content = ?
+            WHERE id = ?
+            """,
+                request.title(), request.content(), id);
+    }
+
+    public List<PostResponse> getPosts(int page) {
+        return jdbcTemplate.query("""
+                SELECT id, title, content, user_id
+                FROM posts
+                LIMIT ?
+                OFFSET ?
+                """,
+                new Object[] {5, page * 5},
+                postRowMapper);
+    }
+
+    public Optional<PostResponse> findPost(Long id) {
+        return jdbcTemplate.query("""
+                        SELECT id, title, content, user_id
+                        FROM posts
+                        WHERE id = ?
+                        """,
+                        new Object[]{id},
+                        postRowMapper)
+                .stream()
+                .findFirst();
+    }
+}
