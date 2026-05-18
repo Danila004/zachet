@@ -5,16 +5,18 @@ import com.vsu.zachet.repository.UserRepository;
 import com.vsu.zachet.request.AddUserRequest;
 import com.vsu.zachet.request.EditUserRequest;
 import com.vsu.zachet.response.UserResponse;
+import com.vsu.zachet.response.UserResponseWithPasswordHash;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest extends AbstractIntegrationTest {
     @Autowired
@@ -22,6 +24,8 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @BeforeEach
     public void cleanUsers() {
@@ -47,7 +51,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
         userController.addUser(newUser);
 
-        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
         assertTrue(newUserInDB.isPresent());
     }
 
@@ -58,7 +62,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
         userController.deleteUser(userInDb.id());
 
-        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
         assertTrue(newUserInDB.isEmpty());
     }
 
@@ -70,8 +74,16 @@ public class UserControllerTest extends AbstractIntegrationTest {
         EditUserRequest editUser = new EditUserRequest("newbob@mail.ru", "54321");
         userController.setUser(userInDb.id(), editUser);
 
-        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
         assertEquals(editUser.email(), newUserInDB.get().email());
+        assertTrue(passwordEncoder.matches(editUser.password_hash(), newUserInDB.get().password_hash()));
+    }
 
+    @Test
+    public void GivenExistedUserWhenAddHimInDBThenValidationException() {
+        AddUserRequest newUser = new AddUserRequest("Bob", "bob@mail.ru", "12345");
+        userRepository.addUser(newUser);
+
+        assertThrowsExactly(ValidationException.class, () -> userController.addUser(newUser));
     }
 }

@@ -5,6 +5,7 @@ import com.vsu.zachet.request.AddUserRequest;
 import com.vsu.zachet.request.EditUserRequest;
 import com.vsu.zachet.response.UserAuthResponse;
 import com.vsu.zachet.response.UserResponse;
+import com.vsu.zachet.response.UserResponseWithPasswordHash;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -46,7 +47,7 @@ public class UserRepository {
             SET email = ?, password_hash = ?
             WHERE id = ?
             """,
-                request.email(), request.password_hash().hashCode(), id);
+                request.email(), passwordEncoder.encode(request.password_hash()), id);
     }
 
     public List<UserResponse> getUsers(int page) {
@@ -81,14 +82,19 @@ public class UserRepository {
                 username);
     }
 
-    public Optional<UserResponse> findUser(String username) {
+    public Optional<UserResponseWithPasswordHash> findUser(String username) {
         return jdbcTemplate.query("""
-                        SELECT id, username, email
+                        SELECT id, username, email, password_hash
                         FROM users
                         WHERE username LIKE ?
                         """,
                 new Object[]{username},
-                userRowMapper)
+                        (rs, numRow) -> {return new UserResponseWithPasswordHash(
+                                rs.getLong("id"),
+                                rs.getString("username"),
+                                rs.getString("email"),
+                                rs.getString("password_hash")
+                        );})
                 .stream()
                 .findFirst();
     }
