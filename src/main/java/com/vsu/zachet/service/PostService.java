@@ -28,6 +28,10 @@ public class PostService {
         return postRepository.getPosts(page);
     }
 
+    public List<PostResponse> findPostsByTitle(String title, int page) {
+        return postRepository.findPostsByTitle(title, page);
+    }
+
     public PostResponse addPost(AddPostRequest request) {
         return postRepository.addPost(request);
     }

@@ -64,6 +64,18 @@ public class PostRepository {
                 postRowMapper);
     }
 
+    public List<PostResponse> findPostsByTitle(String title, int page) {
+        return jdbcTemplate.query("""
+                SELECT id, title, content, userId
+                FROM posts
+                WHERE title LIKE ?
+                LIMIT ?
+                OFFSET ?
+                """,
+                new Object[] {title, 5, page * 5},
+                postRowMapper);
+    }
+
     public Optional<PostResponse> findPost(Long id) {
         return jdbcTemplate.query("""
                         SELECT id, title, content, userId

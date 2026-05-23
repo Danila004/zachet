@@ -51,6 +51,18 @@ public class PostControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void GivenFivePostsInDBWithSameTitleWhenFindThemThenGetThem() {
+        UserResponse user = userRepository.addUser(new AddUserRequest("Bob", "bob@mail.ru", "12345"));
+        for(int i = 0; i < 5; i++) {
+            postRepository.addPost(new AddPostRequest(user.id(), "Ha", "ha"));
+        }
+
+        List<PostResponse> posts = postController.findPostsByTitle("Ha", 0);
+
+        assertEquals(5, posts.toArray().length);
+    }
+
+    @Test
     public void GivenNewPostWhenAddHimInDBThenSuccessfulAdding() {
         UserResponse user = userRepository.addUser(new AddUserRequest("Bob", "bob@mail.ru", "12345"));
         AddPostRequest newPost = new AddPostRequest(user.id(), "Ha", "ha");

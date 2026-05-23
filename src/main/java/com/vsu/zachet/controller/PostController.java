@@ -33,6 +33,11 @@ public class PostController {
         return postService.getPosts(page);
     }
 
+    @GetMapping(path = "/search")
+    public List<PostResponse> findPostsByTitle(@RequestParam String title, @RequestParam int page) {
+        return postService.findPostsByTitle(title, page);
+    }
+
     @PostMapping
     public PostResponse addPost(@RequestBody AddPostRequest request) {
         return postService.addPost(request);
