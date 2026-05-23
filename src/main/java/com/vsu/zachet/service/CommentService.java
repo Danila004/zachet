@@ -16,12 +16,12 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public void setComment(Long id, EditCommentRequest request) {
-        commentRepository.editComment(id, request);
+    public CommentResponse setComment(Long id, EditCommentRequest request) {
+        return commentRepository.editComment(id, request);
     }
 
-    public void deleteComment(Long id) {
-        commentRepository.deleteComment(id);
+    public CommentResponse deleteComment(Long id) {
+        return commentRepository.deleteComment(id);
     }
 
     public List<CommentResponse> getComments(int page) {

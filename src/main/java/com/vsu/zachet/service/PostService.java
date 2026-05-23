@@ -16,12 +16,12 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void setPost(Long id, EditPostRequest request) {
-        postRepository.editPost(id, request);
+    public PostResponse setPost(Long id, EditPostRequest request) {
+        return postRepository.editPost(id, request);
     }
 
-    public void deletePost(Long id) {
-        postRepository.deletePost(id);
+    public PostResponse deletePost(Long id) {
+        return postRepository.deletePost(id);
     }
 
     public List<PostResponse> getPosts(int page) {

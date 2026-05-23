@@ -24,33 +24,38 @@ public class PostRepository {
     
     public PostResponse addPost(AddPostRequest request) {
         return jdbcTemplate.queryForObject("""
-                INSERT INTO posts (user_id, title, content)
+                INSERT INTO posts (userId, title, content)
                 VALUES(?,?,?)
-                RETURNING id, title, content, user_id
+                RETURNING id, title, content, userId
                 """,
-                new Object[] {request.user_id(), request.title(), request.content()},
+                new Object[] {request.userId(), request.title(), request.content()},
                 postRowMapper);
     }
 
-    public void deletePost(Long id) {
-        jdbcTemplate.update("""
+    public PostResponse deletePost(Long id) {
+        return jdbcTemplate.queryForObject("""
             DELETE FROM posts
             WHERE id = ?
-            """, id);
+            RETURNING id, title, content, userId
+            """,
+                postRowMapper,
+                id);
     }
 
-    public void editPost(Long id, EditPostRequest request) {
-        jdbcTemplate.update("""
+    public PostResponse editPost(Long id, EditPostRequest request) {
+        return jdbcTemplate.queryForObject("""
             UPDATE posts
             SET title = ?, content = ?
             WHERE id = ?
+            RETURNING id, title, content, userId
             """,
+                postRowMapper,
                 request.title(), request.content(), id);
     }
 
     public List<PostResponse> getPosts(int page) {
         return jdbcTemplate.query("""
-                SELECT id, title, content, user_id
+                SELECT id, title, content, userId
                 FROM posts
                 LIMIT ?
                 OFFSET ?
@@ -61,7 +66,7 @@ public class PostRepository {
 
     public Optional<PostResponse> findPost(Long id) {
         return jdbcTemplate.query("""
-                        SELECT id, title, content, user_id
+                        SELECT id, title, content, userId
                         FROM posts
                         WHERE id = ?
                         """,

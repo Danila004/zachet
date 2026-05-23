@@ -5,7 +5,6 @@ import com.vsu.zachet.repository.UserRepository;
 import com.vsu.zachet.request.AddUserRequest;
 import com.vsu.zachet.request.EditUserRequest;
 import com.vsu.zachet.response.UserResponse;
-import com.vsu.zachet.response.UserResponseWithPasswordHash;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
         userController.addUser(newUser);
 
-        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
         assertTrue(newUserInDB.isPresent());
     }
 
@@ -62,7 +61,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
         userController.deleteUser(userInDb.id());
 
-        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
         assertTrue(newUserInDB.isEmpty());
     }
 
@@ -74,9 +73,9 @@ public class UserControllerTest extends AbstractIntegrationTest {
         EditUserRequest editUser = new EditUserRequest("newbob@mail.ru", "54321");
         userController.setUser(userInDb.id(), editUser);
 
-        Optional<UserResponseWithPasswordHash> newUserInDB = userRepository.findUser(newUser.username());
+        Optional<UserResponse> newUserInDB = userRepository.findUser(newUser.username());
         assertEquals(editUser.email(), newUserInDB.get().email());
-        assertTrue(passwordEncoder.matches(editUser.password_hash(), newUserInDB.get().password_hash()));
+        assertTrue(passwordEncoder.matches(editUser.passwordHash(), newUserInDB.get().passwordHash()));
     }
 
     @Test

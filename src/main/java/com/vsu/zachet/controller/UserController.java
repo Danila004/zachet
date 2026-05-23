@@ -19,15 +19,13 @@ public class UserController {
     }
 
     @PatchMapping(path = "/{id}")
-    public ResponseEntity<String> setUser(@PathVariable Long id, @RequestBody EditUserRequest request) {
-        userService.setUser(id, request);
-        return ResponseEntity.ok("Информация обновлена");
+    public UserResponse setUser(@PathVariable Long id, @RequestBody EditUserRequest request) {
+        return userService.setUser(id, request);
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("Пользователь удален");
+    public UserResponse deleteUser(@PathVariable Long id) {
+        return userService.deleteUser(id);
     }
 
     @GetMapping

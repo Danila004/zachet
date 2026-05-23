@@ -15,7 +15,8 @@ public class UserRowMapper implements RowMapper<UserResponse> {
         return new UserResponse(
                 rs.getLong("id"),
                 rs.getString("username"),
-                rs.getString("email")
+                rs.getString("email"),
+                rs.getString("passwordHash")
         );
     }
 }

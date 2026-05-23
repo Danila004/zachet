@@ -14,7 +14,7 @@ public class PostRowMapper implements RowMapper<PostResponse> {
     public PostResponse mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new PostResponse(
                 rs.getLong("id"),
-                rs.getLong("user_id"),
+                rs.getLong("userId"),
                 rs.getString("title"),
                 rs.getString("content")
         );

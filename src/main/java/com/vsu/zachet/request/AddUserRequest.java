@@ -5,5 +5,5 @@ import org.springframework.stereotype.Component;
 public record AddUserRequest (
     String username,
     String email,
-    String password_hash
+    String passwordHash
 ) {}

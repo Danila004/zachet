@@ -2,7 +2,7 @@ package com.vsu.zachet.response;
 
 public record PostResponse(
         Long id,
-        Long user_id,
+        Long userId,
         String title,
         String content
 ) {

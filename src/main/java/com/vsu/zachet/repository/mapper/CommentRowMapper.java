@@ -14,8 +14,8 @@ public class CommentRowMapper implements RowMapper<CommentResponse> {
     public CommentResponse mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new CommentResponse(
                 rs.getLong("id"),
-                rs.getLong("user_id"),
-                rs.getLong("post_id"),
+                rs.getLong("userId"),
+                rs.getLong("postId"),
                 rs.getString("content")
         );
     }

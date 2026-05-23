@@ -5,7 +5,6 @@ import com.vsu.zachet.request.AddUserRequest;
 import com.vsu.zachet.request.EditUserRequest;
 import com.vsu.zachet.response.UserAuthResponse;
 import com.vsu.zachet.response.UserResponse;
-import com.vsu.zachet.response.UserResponseWithPasswordHash;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -26,33 +25,38 @@ public class UserRepository {
 
     public UserResponse addUser(AddUserRequest request) {
         return jdbcTemplate.queryForObject("""
-                INSERT INTO users (username, email, password_hash)
+                INSERT INTO users (username, email, passwordHash)
                 VALUES(?,?,?)
-                RETURNING id, username, email
+                RETURNING id, username, email, passwordHash
                 """,
-                new Object[] {request.username(), request.email(), passwordEncoder.encode(request.password_hash())},
+                new Object[] {request.username(), request.email(), passwordEncoder.encode(request.passwordHash())},
                 userRowMapper);
     }
 
-    public void deleteUser(Long id) {
-        jdbcTemplate.update("""
+    public UserResponse deleteUser(Long id) {
+        return jdbcTemplate.queryForObject("""
             DELETE FROM users
             WHERE id = ?
-            """, id);
+            RETURNING id, username, email, passwordHash
+            """,
+                userRowMapper,
+                id);
     }
 
-    public void editUser(Long id, EditUserRequest request) {
-        jdbcTemplate.update("""
+    public UserResponse editUser(Long id, EditUserRequest request) {
+        return jdbcTemplate.queryForObject("""
             UPDATE users
-            SET email = ?, password_hash = ?
+            SET email = ?, passwordHash = ?
             WHERE id = ?
+            RETURNING id, username, email, passwordHash
             """,
-                request.email(), passwordEncoder.encode(request.password_hash()), id);
+                userRowMapper,
+                request.email(), passwordEncoder.encode(request.passwordHash()), id);
     }
 
     public List<UserResponse> getUsers(int page) {
         return jdbcTemplate.query("""
-                SELECT id, username, email
+                SELECT id, username, email, passwordHash
                 FROM users
                 LIMIT ?
                 OFFSET ?
@@ -63,13 +67,13 @@ public class UserRepository {
 
     public Optional<UserAuthResponse> findAuthUser(String username) {
         return jdbcTemplate.query("""
-                        SELECT username, password_hash
+                        SELECT username, passwordHash
                         FROM users
                         WHERE username LIKE ?
                         """,
                         new Object[]{username},
                         (rs, rowNum) -> new UserAuthResponse(rs.getString("username"),
-                                rs.getString("password_hash")))
+                                rs.getString("passwordHash")))
                 .stream()
                 .findFirst();
     }
@@ -82,19 +86,14 @@ public class UserRepository {
                 username);
     }
 
-    public Optional<UserResponseWithPasswordHash> findUser(String username) {
+    public Optional<UserResponse> findUser(String username) {
         return jdbcTemplate.query("""
-                        SELECT id, username, email, password_hash
+                        SELECT id, username, email, passwordHash
                         FROM users
                         WHERE username LIKE ?
                         """,
                 new Object[]{username},
-                        (rs, numRow) -> {return new UserResponseWithPasswordHash(
-                                rs.getLong("id"),
-                                rs.getString("username"),
-                                rs.getString("email"),
-                                rs.getString("password_hash")
-                        );})
+                userRowMapper)
                 .stream()
                 .findFirst();
     }

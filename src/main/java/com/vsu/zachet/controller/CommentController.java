@@ -19,15 +19,13 @@ public class CommentController {
     }
 
     @PatchMapping(path = "/{id}")
-    public ResponseEntity<String> setComment(@PathVariable Long id, @RequestBody EditCommentRequest request) {
-        commentService.setComment(id, request);
-        return ResponseEntity.ok("Информация обновлена");
+    public CommentResponse setComment(@PathVariable Long id, @RequestBody EditCommentRequest request) {
+        return commentService.setComment(id, request);
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long id) {
-        commentService.deleteComment(id);
-        return ResponseEntity.ok("Коментарий удален");
+    public CommentResponse deleteComment(@PathVariable Long id) {
+        return commentService.deleteComment(id);
     }
 
     @GetMapping

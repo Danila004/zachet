@@ -20,12 +20,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void setUser(Long id, EditUserRequest request) {
-        userRepository.editUser(id, request);
+    public UserResponse setUser(Long id, EditUserRequest request) {
+        return userRepository.editUser(id, request);
     }
 
-    public void deleteUser(Long id) {
-        userRepository.deleteUser(id);
+    public UserResponse deleteUser(Long id) {
+        return userRepository.deleteUser(id);
     }
 
     public List<UserResponse> getUsers(int page) {

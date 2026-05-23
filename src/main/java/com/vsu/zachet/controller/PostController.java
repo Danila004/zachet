@@ -19,15 +19,13 @@ public class PostController {
     }
 
     @PatchMapping(path = "/{id}")
-    public ResponseEntity<String> setPost(@PathVariable Long id, @RequestBody EditPostRequest request) {
-        postService.setPost(id, request);
-        return ResponseEntity.ok("Информация обновлена");
+    public PostResponse setPost(@PathVariable Long id, @RequestBody EditPostRequest request) {
+        return postService.setPost(id, request);
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return ResponseEntity.ok("Пост удален");
+    public PostResponse deletePost(@PathVariable Long id) {
+        return postService.deletePost(id);
     }
 
     @GetMapping

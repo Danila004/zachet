@@ -4,7 +4,6 @@ import com.vsu.zachet.repository.mapper.CommentRowMapper;
 import com.vsu.zachet.request.AddCommentRequest;
 import com.vsu.zachet.request.EditCommentRequest;
 import com.vsu.zachet.response.CommentResponse;
-import com.vsu.zachet.response.PostResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -24,33 +23,38 @@ public class CommentRepository {
 
     public CommentResponse addComment(AddCommentRequest request) {
         return jdbcTemplate.queryForObject("""
-                INSERT INTO comments (post_id, user_id, content)
+                INSERT INTO comments (postId, userId, content)
                 VALUES(?,?,?)
-                RETURNING id, content, user_id, post_id
+                RETURNING id, content, userId, postId
                 """,
-                new Object[] {request.post_id(), request.user_id(), request.content()},
+                new Object[] {request.postId(), request.userId(), request.content()},
                 commentRowMapper);
     }
 
-    public void deleteComment(Long id) {
-        jdbcTemplate.update("""
+    public CommentResponse deleteComment(Long id) {
+        return jdbcTemplate.queryForObject("""
             DELETE FROM comments
             WHERE id = ?
-            """, id);
+            RETURNING id, content, userId, postId
+            """,
+                commentRowMapper,
+                id);
     }
 
-    public void editComment(Long id, EditCommentRequest request) {
-        jdbcTemplate.update("""
+    public CommentResponse editComment(Long id, EditCommentRequest request) {
+        return jdbcTemplate.queryForObject("""
             UPDATE comments
             SET content = ?
             WHERE id = ?
+            RETURNING id, content, userId, postId
             """,
+                commentRowMapper,
                 request.content(), id);
     }
 
     public List<CommentResponse> getComments(int page) {
         return jdbcTemplate.query("""
-                SELECT id, post_id, user_id, content
+                SELECT id, postId, userId, content
                 FROM comments
                 LIMIT ?
                 OFFSET ?
@@ -61,7 +65,7 @@ public class CommentRepository {
 
     public Optional<CommentResponse> findComment(Long id) {
         return jdbcTemplate.query("""
-                        SELECT id, content, user_id, post_id
+                        SELECT id, content, userId, postId
                         FROM comments
                         WHERE id = ?
                         """,
