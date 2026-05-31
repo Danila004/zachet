@@ -72,7 +72,7 @@ public class PostRepository {
                 LIMIT ?
                 OFFSET ?
                 """,
-                new Object[] {title, 5, page * 5},
+                new Object[] {"%" + title + "%", 5, page * 5},
                 postRowMapper);
     }
 

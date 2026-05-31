@@ -36,7 +36,7 @@ public class UserService {
     public UserResponse addUser(AddUserRequest request) {
         userRepository.lockOnUsername(request.username());
         Optional<UserAuthResponse> opUser = userRepository.findAuthUser(request.username());
-        if(opUser.isPresent())
+        if (opUser.isPresent())
             throw new ValidationException("Такой пользователь уже есть");
         return userRepository.addUser(request);
     }
